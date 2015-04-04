@@ -1,0 +1,88 @@
+##########################################################################
+# Purpose: SOF and MrOS Table 1
+# Date:06/16/2014
+##########################################################################
+library('doHPC')
+registerDoHPC('HOMER',Rbin="C:/R/R-2.15.2/bin/i386/Rterm.exe")
+
+setwd("C:/Users/JNettiksimmons/Documents/DATA")
+load("mros_cib_noBirm_20131122.rdata")
+load("sof_cib_20131206.rdata")
+load("nineGSnps_20131031.rdata")
+allsnps = nineGSnps
+
+source("C:/Users/JNettiksimmons/Documents/indiv_skatFunctions_20140722.r")
+###########################################################################
+
+#MROS table 1 variable names
+
+mros_var_cat = c('edcat','ethrace','cognum','tursmoke',
+			'diab_self', 'highbp_self')
+#removing depression for now since not in sof 'depr_self',
+
+mros_var_cont =c('ageb', 'tmmscore')
+		
+
+
+#SOF table 1 variable names
+
+sof_var_cat = c( 'edcat', 'v1race', 'cognum', 'v1smoke', 'v1ediab',
+			'v1hyten')
+
+sof_var_cont = c('ageb', 'smmse') 
+
+##########################################################################
+catfun = 
+function(var,data){
+	sub = subset(data, select = var)
+	tab = table(sub[,1])
+	sumtab = sum(tab)
+	tabp = tab/sumtab
+
+	string = paste(tab, " (", round(tabp,3)*100, ")", sep = '')
+	names(string) = names(tab)
+	final = c(var, string)
+
+}
+
+contfun =
+function(var,data){
+	sub = subset(data, select = var)
+	
+	mn = mean(sub[,1], na.rm=T)
+	sdd = sd(sub[,1], na.rm=T)
+
+	string = paste(round(mn,1), " (", round(sdd,1), ")", sep = '')
+	final = c(var, string)
+
+} 
+##########################################################################
+
+mros_cat = lapply(mros_var_cat, catfun, mros_cib_nb)
+mros_cont = lapply(mros_var_cont, contfun, mros_cib_nb)
+
+sof_cat = lapply(sof_var_cat, catfun, sof_cib)
+sof_cont = lapply(sof_var_cont, contfun, sof_cib)
+
+
+#t-test for age
+
+sof_age = sof_cib$ageb
+mros_age = mros_cib_nb$ageb
+
+t.test(sof_age, mros_age)
+
+
+# IGNORE
+##########################################################################
+# check that no one is included with NA's for all snps
+
+mros_g = grep('rs', names(mros_cgb))
+mros_sub = subset(mros_cgb, select = mros_g)
+
+mros_check = apply(mros_sub, 1, function(x){
+
+			s = sum(is.na(x))
+			s > 1000
+	})
+

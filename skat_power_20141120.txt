@@ -1,0 +1,70 @@
+# Check SKAT power
+# 11/20/2014
+
+library('doHPC')
+registerDoHPC('HOMER',Rbin="C:/R/R-2.15.2/bin/i386/Rterm.exe")
+
+setwd("C:/Users/JNettiksimmons/Documents/DATA")
+load("mros_cib_noBirm_20131122.rdata")
+load("sof_cib_20131206.rdata")
+load("nineGSnps_20131031.rdata")
+allsnps =  nineGSnps
+
+source("C:/Users/JNettiksimmons/Documents/indiv_skatFunctions_20141120.r")
+blocks = read.csv("C:/Users/JNettiksimmons/Documents/ldBlocksData.csv", header = F)
+#-------------------------------------------------------------------------------------------
+
+
+skatPower = function(data, gene, outcome, drophit = FALSE, restrictBound = 100000, covlist = NULL, rarity = .02){
+
+gene_snps = getsnps(gene, drophit = drophit, restrictB = restrictBound)
+rel_data = getDataMAF(data, snps = gene_snps, rarity = rarity)
+      
+
+g = grep('rs', names(data))
+skatdat = list(y = subset(data, select = out)[,1],
+                   Z = as.matrix(subset(data, select = g)))
+obj = with(skatdat,  SKAT_Null_Model(y ~ 1, out_type = "C"))
+
+
+
+}
+
+
+
+abca7_outi=  unlist( foreach(j=1:1,.packages="SKAT") %dopar% {  
+  runAll(sof_cib, gene = 'abca7', outcome = 'zslope_age', covlist = c('EV1', 'EV2', 'EV3', 'EV4'))
+}, recursive = FALSE)
+
+clu_outi =  unlist(foreach(j=1:1,.packages="SKAT") %dopar% {  
+  runAll(sof_cib, gene = 'clu', outcome = 'zslope_age', covlist = c('EV1', 'EV2', 'EV3', 'EV4'))
+}, recursive = FALSE)
+
+picalm_outi=  unlist(foreach(j=1:1,.packages="SKAT") %dopar% {  
+  runAll(sof_cib, gene = 'picalm', outcome = 'zslope_age', covlist = c('EV1', 'EV2', 'EV3', 'EV4'))
+}, recursive = FALSE)
+
+cr1_outi =  unlist(foreach(j=1:1,.packages="SKAT") %dopar% {  
+  runAll(sof_cib, gene = 'cr1', outcome = 'zslope_age', covlist = c('EV1', 'EV2', 'EV3', 'EV4'))
+}, recursive = FALSE)
+
+bin1_outi =  unlist(foreach(j=1:1,.packages="SKAT") %dopar% {  
+  runAll(sof_cib, gene = 'bin1', outcome = 'zslope_age', covlist = c('EV1', 'EV2', 'EV3', 'EV4'))
+}, recursive = FALSE)
+
+cd2ap_outi =  unlist(foreach(j=1:1,.packages="SKAT") %dopar% {  
+  runAll(sof_cib, gene = 'cd2ap', outcome = 'zslope_age', covlist = c('EV1', 'EV2', 'EV3', 'EV4'))
+}, recursive = FALSE)
+
+cd33_outi =  unlist(foreach(j=1:1,.packages="SKAT") %dopar% {  
+  runAll(sof_cib, gene = 'cd33', outcome = 'zslope_age', covlist = c('EV1', 'EV2', 'EV3', 'EV4'))
+}, recursive = FALSE)
+
+epha1_outi = unlist( foreach(j=1:1,.packages="SKAT") %dopar% {  
+  runAll(sof_cib, gene = 'epha1', outcome = 'zslope_age', covlist = c('EV1', 'EV2', 'EV3', 'EV4'))
+}, recursive = FALSE)
+
+ms4a6a_outi =  unlist(foreach(j=1:1,.packages="SKAT") %dopar% {  
+  runAll(sof_cib, gene = 'ms4a6a', outcome = 'zslope_age', covlist = c('EV1', 'EV2', 'EV3', 'EV4'))
+}, recursive = FALSE)
+
